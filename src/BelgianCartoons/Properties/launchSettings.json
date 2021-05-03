@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "BelgianCartoons": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "Twitter:Token": "TwatterTokenOverHere",
+        "Reddit:RefreshToken": "RedditRefreshTokenOverHere",
+        "Reddit:AppId": "RedditAppId"
+      }
+    }
+  }
+}
