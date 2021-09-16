@@ -10,6 +10,14 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
+- task: CmdLine@2
+  inputs:
+    script: |
+      echo Write your commands here
+      
+      echo Hello world
+      
+      echo $(buildNumber)
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
