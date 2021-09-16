@@ -14,7 +14,7 @@ namespace BelgianCartoons.Scraper.Functions
         private readonly ILogger<GetCartoonistsFromTwitter> _logger;
         private readonly IRedditService _redditService;
         private readonly ITwitterService _twitterService;
-        private readonly DateTime MINIMUM_DATE = new DateTime(2021, 3, 1);
+        private readonly DateTime MINIMUM_DATE = new DateTime(2021, 9, 16);
 
         public GetCartoonistsFromTwitter(ITwitterService twitterService, IRedditService redditService, ILogger<GetCartoonistsFromTwitter> logger)
         {
