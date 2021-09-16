@@ -3,7 +3,7 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-name: 'Set dynamically below in a task'
+name: '[Temp]'
 
 variables:
   version.Revision: $[counter(variables['version.MajorMinor'], 0)]
@@ -19,17 +19,7 @@ pool:
 steps:
 
 - task: PowerShell@2
-  displayName: Set the prereleaseVersionNumber variable value
-  inputs:
-    targetType: 'inline'
-    script: |
-      [string] $dateTime = (Get-Date -Format 'yyyyMMddTHHmmss')
-      [string] $prereleaseVersionNumber = "$(stableVersionNumber)-ci$dateTime+$(Build.SourceVersion)"
-      Write-Host "Setting the prerelease version number variable to '$prereleaseVersionNumber'."
-      Write-Host "##vso[task.setvariable variable=prereleaseVersionNumber]$prereleaseVersionNumber"
-
-- task: PowerShell@2
-  displayName: Set the versionNumber to the stable or prerelease version number based on if the 'main' branch is being built or not
+  displayName: Set version number
   inputs:
     targetType: 'inline'
     script: |
@@ -51,11 +41,20 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: 'src/BelgianCartoons/BelgianCartoons.Scraper.Functions.csproj'
-    arguments: '-o $(Build.ArtifactStagingDirectory)'
+    arguments: '-o $(Build.ArtifactStagingDirectory) -c Release /property:Version=$(versionNumber)'
     zipAfterPublish: true
     modifyOutputPath: true
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      git tag $(versionNumber)
+      git push
+
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
+    
