@@ -16,7 +16,7 @@ steps:
       echo Write your commands here
       
       echo Hello world
-      
+      echo $(Build.BuildNumber)
       echo $(buildNumber)
 - task: DotNetCoreCLI@2
   inputs:
