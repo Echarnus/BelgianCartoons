@@ -50,7 +50,7 @@ steps:
     targetType: 'inline'
     script: |
       git tag $(versionNumber)
-      git push
+      git push origin HEAD:$(Build.SourceBranchName)
 
 - task: PublishBuildArtifacts@1
   inputs:
