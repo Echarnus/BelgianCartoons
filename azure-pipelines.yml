@@ -3,6 +3,13 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+name: '[Temp]'
+
+variables:
+  version.Revision: $[counter(variables['version.MajorMinor'], 0)]
+  stableVersionNumber: '$(version.MajorMinor).$(version.Revision)'
+  versionNumber: 'Set dynamically below in a task' # Will be set to the stableVersionNumber or prereleaseVersionNumber based on the branch.
+
 trigger:
 - main
 
@@ -10,16 +17,37 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
+
+- task: PowerShell@2
+  displayName: Set version number
+  inputs:
+    targetType: 'inline'
+    script: |
+      $versionNumber = "$(stableVersionNumber)"
+      Write-Host "Setting the version number to use to '$versionNumber'."
+      Write-Host "##vso[task.setvariable variable=versionNumber]$versionNumber"
+
+- task: PowerShell@2
+  displayName: Set the name of the build (i.e. the Build.BuildNumber)
+  inputs:
+    targetType: 'inline'
+    script: |
+      [string] $buildName = "$(versionNumber)_$(Build.SourceBranchName)"
+      Write-Host "Setting the name of the build to '$buildName'."
+      Write-Host "##vso[build.updatebuildnumber]$buildName"
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
     publishWebProjects: false
     projects: 'src/BelgianCartoons/BelgianCartoons.Scraper.Functions.csproj'
-    arguments: '-o $(Build.ArtifactStagingDirectory)/drop'
+    arguments: '-o $(Build.ArtifactStagingDirectory) -c Release /property:Version=$(versionNumber)'
     zipAfterPublish: true
     modifyOutputPath: true
+
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
+    
