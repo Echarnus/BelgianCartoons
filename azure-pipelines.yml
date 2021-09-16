@@ -8,10 +8,7 @@ name: 'Set dynamically below in a task'
 variables:
   version.Revision: $[counter(variables['version.MajorMinor'], 0)]
   stableVersionNumber: '$(version.MajorMinor).$(version.Revision)'
-  prereleaseVersionNumber: 'Set dynamically below in a task'
   versionNumber: 'Set dynamically below in a task' # Will be set to the stableVersionNumber or prereleaseVersionNumber based on the branch.
-  isMainBranch: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')] # Determine if we're building the 'main' branch or not.
-
 
 trigger:
 - main
@@ -36,12 +33,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      [bool] $isMainBranch = $(isMainBranch)
-      [string] $versionNumber = "$(prereleaseVersionNumber)"
-      if ($isMainBranch)
-      {
-        $versionNumber = "$(stableVersionNumber)"
-      }
+      $versionNumber = "$(stableVersionNumber)"
       Write-Host "Setting the version number to use to '$versionNumber'."
       Write-Host "##vso[task.setvariable variable=versionNumber]$versionNumber"
 
