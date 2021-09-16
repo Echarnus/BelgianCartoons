@@ -45,13 +45,6 @@ steps:
     zipAfterPublish: true
     modifyOutputPath: true
 
-- task: PowerShell@2
-  inputs:
-    targetType: 'inline'
-    script: |
-      git tag $(versionNumber)
-      git push origin HEAD:$(Build.SourceBranchName)
-
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
