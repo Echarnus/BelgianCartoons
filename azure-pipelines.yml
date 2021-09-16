@@ -15,3 +15,11 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: 'src/BelgianCartoons/BelgianCartoons.Scraper.Functions.csproj'
+    arguments: '-o $(Build.ArtifactStagingDirectory)/drop'
+    zipAfterPublish: true
+    modifyOutputPath: true
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
