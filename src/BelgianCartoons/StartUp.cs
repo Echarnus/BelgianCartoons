@@ -27,7 +27,8 @@ namespace BelgianCartoons.Scraper.Functions
             var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile($"appsettings.json", true, true)
-                .AddEnvironmentVariables();
+                .AddEnvironmentVariables()
+                .AddUserSecrets(this.GetType().Assembly, true);
 
             var config = configurationBuilder.Build();
 

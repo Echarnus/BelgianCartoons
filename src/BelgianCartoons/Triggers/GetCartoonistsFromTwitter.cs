@@ -6,21 +6,22 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace BelgianCartoons.Scraper.Functions
+namespace BelgianCartoons.Scraper.Functions.Triggers
 {
     public class GetCartoonistsFromTwitter
     {
+
         private const string SCHEDULE_EXPRESSION = "* * */12 * * *";
         private readonly ILogger<GetCartoonistsFromTwitter> _logger;
         private readonly IRedditService _redditService;
         private readonly ITwitterService _twitterService;
-        private readonly DateTime MINIMUM_DATE = new DateTime(2021, 9, 16);
+        private readonly DateTime MINIMUM_DATE = new DateTime(2021, 9, 15); // Use this var to avoid blasting my Twitter limit
 
         public GetCartoonistsFromTwitter(ITwitterService twitterService, IRedditService redditService, ILogger<GetCartoonistsFromTwitter> logger)
         {
-            this._twitterService = twitterService;
-            this._redditService = redditService;
-            this._logger = logger;
+            _twitterService = twitterService;
+            _redditService = redditService;
+            _logger = logger;
         }
 
         [FunctionName("GetSoupCatCartoons")]
@@ -172,6 +173,28 @@ namespace BelgianCartoons.Scraper.Functions
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Problem with processing Tweet {Tweet} for cartoonist {Cartoonist}", cartoon.Id, "Lectrr");
+                }
+            }
+        }
+
+        [FunctionName("GetVanmoltoons")]
+        public async Task RunGetVanmolCartoons([TimerTrigger(SCHEDULE_EXPRESSION)] TimerInfo myTimer)
+        {
+            var lastUpdated = myTimer?.ScheduleStatus?.Last ?? MINIMUM_DATE;
+            _logger.LogInformation("Last SyncTime was {SyncTime}", lastUpdated);
+
+            var tweets = await _twitterService.GetTweetsFromUserAsync("34889535", lastUpdated).ConfigureAwait(false);
+            var cartoonTweets = tweets.Where(tweet => tweet.Entities?.Hashtags?.Any(t => string.Equals(t?.Tag, "cartoon", StringComparison.OrdinalIgnoreCase)) == true);
+            _logger.LogInformation("Found {TotalTweets} Tweets for cartoonist {Cartoonist}", cartoonTweets.Count(), "Vanmoltoons");
+            foreach (var cartoon in cartoonTweets)
+            {
+                try
+                {
+                    await _redditService.CreateLinkPostAsync("BelgianCartoons", $"{cartoon.Text}", cartoon.Entities.Urls.FirstOrDefault()?.Expanded_url, "Vanmoltoons");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Problem with processing Tweet {Tweet} for cartoonist {Cartoonist}", cartoon.Id, "Vanmoltoons");
                 }
             }
         }
