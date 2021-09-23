@@ -11,7 +11,7 @@ namespace BelgianCartoons.Scraper.Functions.Triggers
     public class GetCartoonistsFromTwitter
     {
 
-        private const string SCHEDULE_EXPRESSION = "* * */12 * * *";
+        private const string SCHEDULE_EXPRESSION = "* * */6 * * *";
         private readonly ILogger<GetCartoonistsFromTwitter> _logger;
         private readonly IRedditService _redditService;
         private readonly ITwitterService _twitterService;
